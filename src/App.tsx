@@ -8,10 +8,9 @@ function App() {
     const [pageNumber, setPageNumber] = useState<number>(1)
     const [loading, setLoading] = useState(false)
 
-    const Access_key = "1SO48FE0MZ-4aRlVSCyKJxLxFAOYxMj7yyp4S5C8-LU"
 
     const fetchPhotos = async (pageNumber: number) => {
-        const {data} = await axios.get(`https://api.unsplash.com/photos/?client_id=${Access_key}&page=${pageNumber}&per_page=10`)
+        const {data} = await axios.get(`https://api.unsplash.com/photos/?client_id=${process.env.REACT_APP_SECRET_KEY}&page=${pageNumber}&per_page=10`)
         setPhotos((prev: PhotosState[]) => [...prev, ...data])
         setLoading(true)
     }
