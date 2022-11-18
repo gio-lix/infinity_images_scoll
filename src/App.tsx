@@ -1,6 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
-import './App.scss';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import axios from "axios";
+import './App.scss';
+
 import {PhotosState} from "./typing";
 
 function App() {
@@ -9,11 +10,11 @@ function App() {
     const [loading, setLoading] = useState(false)
 
 
-    const fetchPhotos = async (pageNumber: number) => {
+    const fetchPhotos = useCallback( async (pageNumber: number) => {
         const {data} = await axios.get(`https://api.unsplash.com/photos/?client_id=${process.env.REACT_APP_SECRET_KEY}&page=${pageNumber}&per_page=10`)
         setPhotos((prev: PhotosState[]) => [...prev, ...data])
         setLoading(true)
-    }
+    },[pageNumber])
 
     const loadMore = () => {
         setPageNumber(prev => prev + 1)
@@ -25,31 +26,25 @@ function App() {
 
     const pageEnd = useRef<HTMLButtonElement | null>(null)
 
-    let num = 1
     useEffect(() => {
         if (loading) {
             const observer = new IntersectionObserver(entries => {
                 if (entries[0].isIntersecting) {
-                    num++
                     loadMore()
-                    if (num >= 5) {
-                        pageEnd.current && observer.observe(pageEnd.current)
-                    }
+                    pageEnd.current && observer.observe(pageEnd.current)
                 }
             }, {threshold: 1});
             pageEnd.current && observer.observe(pageEnd.current)
         }
     }, [loading])
 
-
     function getSpanEstimate(size: number) {
-        if (size > 5000) return 2
+        if (size >= 5500) return 2
         return 1
     }
 
     return (
-        <main>
-            <h1>Infinity scroll</h1>
+        <main style={{marginTop: "40px"}}>
             <section className="imageSection">
                 {photos.map((photo: PhotosState, index: number) => {
                     return (
